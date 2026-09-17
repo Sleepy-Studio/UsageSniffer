@@ -98,6 +98,16 @@ The second chart ("action share EXCLUDING context cache") is the useful one:
 cache reads dominate raw totals but are cheap; the action chart shows where
 your real budget goes.
 
+## Agent skill
+
+`skills/usagesniffer/SKILL.md` lets agentic CLIs (Claude Code, Codex,
+Opencode) invoke UsageSniffer themselves — token questions, budget checks,
+post-session post-mortems. Symlink or copy it into your skills directory:
+
+```bash
+ln -s $PWD/skills/usagesniffer ~/.agents/skills/usagesniffer
+```
+
 ## Layout
 
 ```
