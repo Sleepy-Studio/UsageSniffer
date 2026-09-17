@@ -1,6 +1,6 @@
 [project]
 name = "usagesniffer"
-version = "1.1.2"
+version = "1.2.0"
 description = "Scan Claude Code, Codex, Opencode, Gemini, Copilot, Cursor, Aider, and Continue sessions and visualize what eats your tokens"
 readme = "README.md"
 license = { text = "MIT" }

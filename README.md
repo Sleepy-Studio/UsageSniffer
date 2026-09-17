@@ -65,6 +65,7 @@ usagesniffer watch --interval 30               # live burn (Ctrl-C to stop)
 usagesniffer anomalies                         # outlier sessions vs agent baseline
 usagesniffer skills-roi                        # per-skill cost table
 usagesniffer compare                           # cross-agent efficiency
+usagesniffer doctor                            # proactive waste audit (read-only, with fixes)
 # filters work on most commands:
 usagesniffer scan --since 2026-09-01 --project Sunrise --model sonnet
 ```
@@ -124,5 +125,6 @@ tests/
 - [x] prompt-caching savings estimate (cache_read vs full-price replay)
 - [x] 8-agent coverage (Claude, Codex, Opencode, Gemini, Copilot, Cursor, Aider, Continue)
 - [x] anomalies, skill ROI, cross-agent compare
+- [x] proactive `doctor` audit (skill weight, output hogs, model fit, cache reuse, disk)
 - [x] PyPI publish (`pipx install usagesniffer`)
 - [ ] Homebrew / AUR packages — templates in `packaging.md`

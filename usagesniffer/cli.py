@@ -1,4 +1,4 @@
-"""CLI: scan | top | session | cost | report | watch | anomalies | skills-roi | compare"""
+"""CLI: scan | top | session | cost | report | watch | anomalies | skills-roi | compare | doctor"""
 from __future__ import annotations
 
 import argparse
@@ -128,6 +128,9 @@ def main(argv=None) -> int:
     p_cmp = sub.add_parser("compare", help="cross-agent efficiency comparison")
     add_common(p_cmp)
 
+    p_doc = sub.add_parser("doctor", help="proactive waste audit (read-only, with fixes)")
+    add_common(p_doc)
+
     args = ap.parse_args(argv)
     agents = resolve_agents(args)
     ov = collect_overrides(args)
@@ -203,6 +206,25 @@ def main(argv=None) -> int:
             print(f"  {r['agent']:<9} sessions={r['sessions']:<4} msgs={r['messages']:<6} "
                   f"total={fmt_dollars(r['total_cost']):>9} $/msg={fmt_dollars(r['cost_per_msg']):>7} "
                   f"think={r['thinking_share']*100:5.1f}% tools/msg={r['tools_per_msg']:.1f}")
+        return 0
+
+    if args.cmd == "doctor":
+        from .doctor import run_all
+        res = do_scan(agents, getattr(args, "limit", 0), ov)
+        res.sessions = apply_filters(res.sessions, args.since, args.project, args.model)
+        findings = run_all(res.sessions)
+        if not findings:
+            print("Doctor found nothing worth flagging. Your burn is clean.")
+            return 0
+        cur = ""
+        for f in findings:
+            if f["check"] != cur:
+                cur = f["check"]
+                print(f"--- {cur} ---")
+            print(f"  [{f['severity']}] {f['detail']}")
+            print(f"           fix: {f['fix']}")
+        print(f"\n{len(findings)} findings across {len(res.sessions)} sessions. "
+              "Read-only audit: nothing was changed.")
         return 0
 
     if args.cmd == "cost":
