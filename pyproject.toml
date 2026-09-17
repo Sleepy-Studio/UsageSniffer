@@ -1,0 +1,20 @@
+[project]
+name = "usagesniffer"
+version = "1.0.0"
+description = "Scan Codex / Claude Code / Opencode sessions and visualize what eats your tokens"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+rich = ["rich>=13"]
+
+[project.scripts]
+usagesniffer = "usagesniffer.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["usagesniffer*"]
