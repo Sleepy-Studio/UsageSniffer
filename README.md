@@ -66,6 +66,10 @@ usagesniffer anomalies                         # outlier sessions vs agent basel
 usagesniffer skills-roi                        # per-skill cost table
 usagesniffer compare                           # cross-agent efficiency
 usagesniffer doctor                            # proactive waste audit (read-only, with fixes)
+usagesniffer burn --last 14d                   # per-day token/cost trend
+usagesniffer export -o snap.json               # machine-readable dump
+usagesniffer prices                            # price-table source/age + overrides
+usagesniffer mcp                               # MCP stdio server for agents
 # filters work on most commands:
 usagesniffer scan --since 2026-09-01 --project Sunrise --model sonnet
 ```
@@ -136,5 +140,9 @@ tests/
 - [x] 8-agent coverage (Claude, Codex, Opencode, Gemini, Copilot, Cursor, Aider, Continue)
 - [x] anomalies, skill ROI, cross-agent compare
 - [x] proactive `doctor` audit (skill weight, output hogs, model fit, cache reuse, disk)
+- [x] `export --json`, `burn` trends, zero-dep MCP server, doctor in HTML reports
+- [x] refreshable price table (`prices`, `~/.config/usagesniffer/prices.json` overrides)
+- [ ] Homebrew / AUR packages — real formula + PKGBUILD in `packaging/` (run
+  `packaging/fetch-sha.sh <ver>` after tagging, then publish to a tap / AUR)
 - [x] PyPI publish (`pipx install usagesniffer`)
 - [ ] Homebrew / AUR packages — templates in `packaging.md`

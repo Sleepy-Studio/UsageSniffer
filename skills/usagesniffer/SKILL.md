@@ -33,7 +33,11 @@ usagesniffer doctor                     # proactive waste audit with fixes
 usagesniffer anomalies                  # outlier sessions vs baselines
 usagesniffer skills-roi                 # per-skill cost table
 usagesniffer compare                    # cross-agent efficiency
-usagesniffer report -o report.html      # shareable HTML report
+usagesniffer burn --last 14d            # per-day token/cost trend
+usagesniffer export -o snap.json        # machine-readable dump (dashboards)
+usagesniffer report -o report.html      # shareable HTML report (incl. doctor)
+usagesniffer prices                     # price-table source/age + overrides
+usagesniffer mcp                        # MCP stdio server (see below)
 # filters (most commands): --agents claude,codex --since YYYY-MM-DD
 #   --project SUBSTR --model SUBSTR
 # overrides: --opencode-db PATH --cursor-dir DIR --aider-path FILE
@@ -55,3 +59,27 @@ usagesniffer report -o report.html      # shareable HTML report
 - Before a big autonomous task → `cost --budget N` to frame the budget.
 - After a long session → `session <id>` + `doctor` for the post-mortem.
 - Recurring check-ins → `doctor` and report only new/high-severity findings.
+- Trend questions ("getting worse?") → `burn --last 30d`.
+- Dashboards/piping → `export -o snap.json`.
+
+## Optimization workflow (propose, never impose)
+
+`doctor` diagnoses waste but applies nothing. When the user wants costs cut:
+
+1. Run `doctor` (and `skills-roi` / `model_fit` findings) and translate each
+   finding into a concrete proposed action with its estimated saving.
+2. Present the list and ask which to pursue. One question, itemized answers.
+3. Apply ONLY approved items, and only non-destructive ones (config edits,
+   model-routing choices, skill slimming drafts, reporting/alert setups).
+4. Destructive actions (deleting/pruning session stores, vacuuming databases,
+   uninstalling anything) require a separate explicit confirmation per item —
+   state what is irreversible before asking.
+5. Re-run `doctor` after applying and report what moved.
+
+## MCP server
+
+`usagesniffer mcp` serves `scan_summary`, `cost_summary`, `doctor`,
+`session_lookup`, and `burn` as MCP stdio tools (zero-dependency,
+JSON-RPC). Register it in the client's MCP config with command
+`usagesniffer` and args `["mcp"]` when the user wants live spend awareness
+inside agent sessions.

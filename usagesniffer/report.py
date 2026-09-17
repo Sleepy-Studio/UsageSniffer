@@ -44,6 +44,21 @@ def build_html(result, title: str = "UsageSniffer report") -> str:
     bucket_rows = [(k, float(v)) for k, v in t.buckets.most_common()]
     action = [(k, float(v)) for k, v in t.buckets.items() if k != "context_cache"]
     action.sort(key=lambda kv: -kv[1])
+    from .doctor import run_all as _doctor
+    try:
+        findings = _doctor(result.sessions)[:20]
+    except Exception:
+        findings = []
+    if findings:
+        doc_rows = "".join(
+            f"<tr><td>{html.escape(f['check'])}</td><td>{html.escape(f['severity'])}</td>"
+            f"<td>{html.escape(f['detail'])}</td><td>{html.escape(f['fix'])}</td></tr>"
+            for f in findings)
+        doc = (f"<div class=card><h2>Doctor findings ({len(findings)} shown)</h2><table>"
+               f"<tr><th>Check</th><th>Severity</th><th>Finding</th><th>Suggested fix</th></tr>"
+               f"{doc_rows}</table></div>")
+    else:
+        doc = "<div class=card><h2>Doctor findings</h2><p class=mut>Nothing worth flagging.</p></div>"
     return f"""<!DOCTYPE html><html><head><meta charset=utf-8><title>{html.escape(title)}</title>
 <style>{CSS}</style></head><body>
 <h1>UsageSniffer report</h1>
@@ -54,6 +69,7 @@ def build_html(result, title: str = "UsageSniffer report") -> str:
 <tr><th>Agent</th><th>Sessions</th><th>Tokens</th><th>Est. cost</th></tr>{agent_rows}</table></div>
 <div class=card><h2>Attribution buckets</h2>{_bars(bucket_rows)}</div>
 <div class=card><h2>Action share (excl. context cache)</h2>{_bars(action)}</div>
+{doc}
 <div class=card><h2>Top sessions</h2><table>
 <tr><th>Agent</th><th>Session</th><th>Model</th><th>Tokens</th><th>Est. cost</th></tr>{sess_rows}</table></div>
 <p class=mut>Totals from logs; buckets and costs are estimates, not billing.</p>

@@ -23,6 +23,8 @@ CASES = {
     "compare": (0, 1),
     "doctor": (0, 1),
     "top --top 2": (0, 1),
+    "burn --last 7d": (0, 1),
+    "prices": (0,),
 }
 
 FLAGS = ["--agents", "--since", "--project", "--model",
@@ -40,7 +42,8 @@ def main() -> None:
     # every documented subcommand exists
     help_out = subprocess.run([*BIN, "--help"], capture_output=True, text=True).stdout
     for cmd in ("scan", "top", "session", "cost", "report", "watch",
-                "anomalies", "skills-roi", "compare", "doctor"):
+                "anomalies", "skills-roi", "compare", "doctor",
+                "export", "burn", "mcp", "prices"):
         assert cmd in help_out, f"subcommand missing: {cmd}"
     print("subcommands OK")
 
@@ -65,7 +68,24 @@ def main() -> None:
         r = subprocess.run([*BIN, "watch", "--interval", "1", "--rounds", "1"],
                            capture_output=True, text=True, timeout=120)
         assert r.returncode in (0, 1), r.stderr[:500]
-        print("run OK: report + watch")
+        r = subprocess.run([*BIN, "export"], capture_output=True, text=True, timeout=300)
+        assert r.returncode in (0, 1), r.stderr[:500]
+        import json as _json
+        if r.returncode == 0:
+            d = _json.loads(r.stdout)
+            assert "sessions" in d and "cost" in d and "sessions_detail" in d
+        # MCP handshake + tools/list + one call
+        mcp_in = ('{"jsonrpc":"2.0","id":1,"method":"initialize"}\n'
+                  '{"jsonrpc":"2.0","id":2,"method":"tools/list"}\n'
+                  '{"jsonrpc":"2.0","id":3,"method":"tools/call",'
+                  '"params":{"name":"burn","arguments":{"days":"7"}}}\n')
+        r = subprocess.run([*BIN, "mcp"], input=mcp_in,
+                           capture_output=True, text=True, timeout=300)
+        lines = [l for l in r.stdout.splitlines() if l.strip()]
+        assert len(lines) == 3, lines
+        for line in lines:
+            _json.loads(line)  # valid JSON-RPC each
+        print("run OK: report + watch + export + mcp")
     print("ALL SKILL TESTS PASSED")
 
 

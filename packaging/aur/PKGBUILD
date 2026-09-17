@@ -1,0 +1,13 @@
+pkgname=usagesniffer
+pkgver=1.3.0
+pkgrel=1
+pkgdesc="Visualize AI-agent token usage across coding CLIs"
+arch=('any')
+url="https://github.com/Sleepy-Studio/UsageSniffer"
+license=('MIT')
+depends=('python')
+makedepends=('python-build' 'python-installer')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('FILLME')
+build() { cd "UsageSniffer-$pkgver"; python -m build --wheel --no-isolation; }
+package() { cd "UsageSniffer-$pkgver"; python -m installer --destdir="$pkgdir" dist/*.whl; }

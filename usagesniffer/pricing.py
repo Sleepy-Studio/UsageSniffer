@@ -50,9 +50,29 @@ AGENT_DEFAULTS: dict[str, tuple[float, float]] = {
 CACHE_READ_MULT = 0.10   # cache reads ~10% of input price
 CACHE_WRITE_MULT = 1.25  # cache writes ~125% of input price
 
+TABLE_SOURCE = "bundled 2026-09 list-price approximations"
+TABLE_DATE = "2026-09-17"
+OVERRIDE_PATH = "~/.config/usagesniffer/prices.json"
+
+
+def load_overrides() -> dict:
+    """User-maintained price overrides: {"model substring": [in $/M, out $/M]}."""
+    import json
+    import os
+    p = os.path.expanduser(OVERRIDE_PATH)
+    try:
+        with open(p) as f:
+            o = json.load(f)
+        return {str(k).lower(): (float(v[0]), float(v[1])) for k, v in o.items()}
+    except (OSError, ValueError, TypeError, IndexError, KeyError):
+        return {}
+
 
 def rate_for(model: str, agent: str) -> tuple[float, float]:
     m = (model or "").lower()
+    for key, rate in load_overrides().items():
+        if key in m:
+            return rate
     for key, rate in PRICES.items():
         if key in m:
             return rate

@@ -131,7 +131,37 @@ def main(argv=None) -> int:
     p_doc = sub.add_parser("doctor", help="proactive waste audit (read-only, with fixes)")
     add_common(p_doc)
 
+    p_exp = sub.add_parser("export", help="machine-readable JSON dump (dashboards, piping)")
+    p_exp.add_argument("-o", "--out", default="", help="write to file instead of stdout")
+    add_common(p_exp)
+
+    p_burn = sub.add_parser("burn", help="per-day token/cost burn chart")
+    p_burn.add_argument("--last", default="14d", help="window like 14d / 30d / 7d")
+    add_common(p_burn)
+
+    p_mcp = sub.add_parser("mcp", help="serve MCP tools over stdio for agents")
+
+    p_prices = sub.add_parser("prices", help="show price table source/age + overrides")
+
     args = ap.parse_args(argv)
+
+    if args.cmd == "mcp":
+        from .mcp import serve
+        return serve()
+
+    if args.cmd == "prices":
+        from .pricing import OVERRIDE_PATH, TABLE_DATE, TABLE_SOURCE, load_overrides
+        print(f"price table: {TABLE_SOURCE} (dated {TABLE_DATE})")
+        ov = load_overrides()
+        if ov:
+            print(f"overrides from {OVERRIDE_PATH}:")
+            for k, (i, o) in sorted(ov.items()):
+                print(f"  {k}: in ${i}/M out ${o}/M")
+        else:
+            print(f"no overrides (optional JSON at {OVERRIDE_PATH}: "
+                  '{"model substring": [in $/M, out $/M]})')
+        return 0
+
     agents = resolve_agents(args)
     ov = collect_overrides(args)
 
@@ -253,10 +283,25 @@ def main(argv=None) -> int:
         _ = aggregate
         return 0
 
-    # scan | top | session
+    # scan | top | session | export | burn
     res = do_scan(agents, getattr(args, "limit", 0), ov)
     res.sessions = apply_filters(res.sessions, getattr(args, "since", ""),
                                  getattr(args, "project", ""), getattr(args, "model", ""))
+    if args.cmd == "export":
+        from .export import dumps
+        out = dumps(res.sessions)
+        if getattr(args, "out", ""):
+            Path(args.out).write_text(out, encoding="utf-8")
+            print(f"wrote {args.out} ({len(res.sessions)} sessions)")
+        else:
+            print(out)
+        return 0
+    if args.cmd == "burn":
+        from .burn import render_burn
+        import re as _re
+        m = _re.match(r"(\d+)\s*d?", getattr(args, "last", "14d") or "14d")
+        print(render_burn(res.sessions, int(m.group(1)) if m else 14))
+        return 0
     if not res.sessions:
         print("No sessions found. Checked all known agent stores.")
         return 1
