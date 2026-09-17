@@ -15,14 +15,42 @@ Zero-dependency Python. Your session logs never leave the machine.
 
 Requires Python 3.10+.
 
+**Windows (PowerShell):**
+
+```powershell
+winget install Python.Python.3.12
+pip install usagesniffer        # or: pipx install usagesniffer
+usagesniffer scan --top 10
+```
+
+**macOS:**
+
 ```bash
-# install from PyPI (recommended)
+brew install python pipx
 pipx install usagesniffer
 usagesniffer scan --top 10
-
-# or run straight from a repo checkout (no install needed)
-python3 -m usagesniffer scan --top 10
 ```
+
+**Linux:**
+
+```bash
+pipx install usagesniffer        # or: pip install usagesniffer
+usagesniffer scan --top 10
+```
+
+Or run from a checkout with no install: `python3 -m usagesniffer scan --top 10`.
+
+### OS notes
+
+- **Windows:** Claude (`%USERPROFILE%\.claude`), Codex (`%USERPROFILE%\.codex`),
+  Opencode (`%USERPROFILE%\.local\share\opencode\opencode.db`), Gemini,
+  Copilot, and Continue resolve automatically. Cursor is read from
+  `%APPDATA%\Cursor\User`. If your stores live elsewhere:
+  `usagesniffer scan --opencode-db PATH --cursor-dir DIR --aider-path FILE`
+  (Opencode also honors the `OPENCODE_DB` env var).
+- **macOS:** Cursor is read from `~/Library/Application Support/Cursor/User`;
+  everything else is home-relative and just works.
+- **Linux:** default paths as listed in "What it reads" below.
 
 ## Quick start
 

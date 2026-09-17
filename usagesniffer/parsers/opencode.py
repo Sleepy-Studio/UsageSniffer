@@ -34,10 +34,24 @@ def _chars(o) -> int:
 
 
 def _db_path(explicit: Path | None = None) -> Path | None:
-    if explicit and explicit.exists():
-        return explicit
-    cand = Path.home() / ".local" / "share" / "opencode" / "opencode.db"
-    return cand if cand.exists() else None
+    import os
+    if explicit:
+        return explicit if explicit.exists() else None  # strict: override means "look here only"
+    # Explicit override wins (covers OPENCODE_DB-injected Roaming splits on Windows).
+    env = os.environ.get("OPENCODE_DB")
+    if env and Path(env).exists():
+        return Path(env)
+    cands = [Path.home() / ".local" / "share" / "opencode" / "opencode.db"]
+    if os.name == "nt":
+        appdata = os.environ.get("APPDATA")
+        if appdata:
+            # legacy/alternate location some integrations use
+            cands.append(Path(appdata) / "opencode" / "opencode.db")
+            cands.append(Path(appdata) / "Roaming" / "opencode" / "opencode.db")
+    for c in cands:
+        if c.exists():
+            return c
+    return None
 
 
 def scan(db: Path | None = None) -> list[SessionRecord]:

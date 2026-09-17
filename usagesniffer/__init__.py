@@ -2,4 +2,4 @@
 from .models import SessionRecord, ScanResult
 
 __all__ = ["SessionRecord", "ScanResult"]
-__version__ = "1.1.1"
+__version__ = "1.1.2"

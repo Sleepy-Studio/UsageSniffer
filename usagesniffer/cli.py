@@ -27,13 +27,15 @@ _PARSERS = {
 }
 
 
-def do_scan(agents=ALL_AGENTS, limit=0) -> ScanResult:
+def do_scan(agents=ALL_AGENTS, limit=0, overrides: dict | None = None) -> ScanResult:
+    overrides = overrides or {}
     sessions = []
     for a in agents:
         fn = _PARSERS.get(a)
         if fn:
             try:
-                sessions += fn()
+                ov = overrides.get(a)
+                sessions += fn(ov) if ov is not None else fn()
             except Exception:
                 continue
     if limit and len(sessions) > limit:
@@ -62,6 +64,20 @@ def add_common(p):
     p.add_argument("--project", default="", help="substring filter on project/cwd")
     p.add_argument("--model", default="", help="substring filter on model")
     p.add_argument("--limit", type=int, default=0, help="cap sessions parsed (heaviest kept)")
+    p.add_argument("--opencode-db", default="", help="explicit opencode.db path (else OPENCODE_DB / defaults)")
+    p.add_argument("--cursor-dir", default="", help="explicit Cursor User dir (else per-OS default)")
+    p.add_argument("--aider-path", default="", help="explicit .aider.chat.history.md / analytics log")
+
+
+def collect_overrides(args) -> dict:
+    ov: dict = {}
+    if getattr(args, "opencode_db", ""):
+        ov["opencode"] = Path(args.opencode_db)
+    if getattr(args, "cursor_dir", ""):
+        ov["cursor"] = Path(args.cursor_dir)
+    if getattr(args, "aider_path", ""):
+        ov["aider"] = [Path(args.aider_path)]
+    return ov
 
 
 def resolve_agents(args) -> tuple:
@@ -114,10 +130,11 @@ def main(argv=None) -> int:
 
     args = ap.parse_args(argv)
     agents = resolve_agents(args)
+    ov = collect_overrides(args)
 
     if args.cmd == "report":
         from .report import build_html
-        res = do_scan(agents, getattr(args, "limit", 0))
+        res = do_scan(agents, getattr(args, "limit", 0), ov)
         res.sessions = apply_filters(res.sessions, args.since, args.project, args.model)
         Path(args.out).write_text(build_html(res), encoding="utf-8")
         print(f"wrote {args.out} ({len(res.sessions)} sessions)")
@@ -130,7 +147,7 @@ def main(argv=None) -> int:
         try:
             while True:
                 rnd += 1
-                res = do_scan(agents)
+                res = do_scan(agents, 0, ov)
                 res.sessions = apply_filters(res.sessions, args.since, args.project, args.model)
                 t = aggregate(res.sessions)
                 tc = total_cost(res.sessions)
@@ -146,7 +163,7 @@ def main(argv=None) -> int:
 
     if args.cmd == "anomalies":
         from .insights import detect_anomalies
-        res = do_scan(agents, getattr(args, "limit", 0))
+        res = do_scan(agents, getattr(args, "limit", 0), ov)
         res.sessions = apply_filters(res.sessions, args.since, args.project, args.model)
         findings = detect_anomalies(res.sessions)
         if not findings:
@@ -165,7 +182,7 @@ def main(argv=None) -> int:
     if args.cmd == "skills-roi":
         from .insights import skill_roi
         from .pricing import fmt_dollars
-        res = do_scan(agents, getattr(args, "limit", 0))
+        res = do_scan(agents, getattr(args, "limit", 0), ov)
         res.sessions = apply_filters(res.sessions, args.since, args.project, args.model)
         rows = skill_roi(res.sessions)
         if not rows:
@@ -180,7 +197,7 @@ def main(argv=None) -> int:
     if args.cmd == "compare":
         from .insights import compare_agents
         from .pricing import fmt_dollars
-        res = do_scan(agents, getattr(args, "limit", 0))
+        res = do_scan(agents, getattr(args, "limit", 0), ov)
         res.sessions = apply_filters(res.sessions, args.since, args.project, args.model)
         for r in compare_agents(res.sessions):
             print(f"  {r['agent']:<9} sessions={r['sessions']:<4} msgs={r['messages']:<6} "
@@ -191,7 +208,7 @@ def main(argv=None) -> int:
     if args.cmd == "cost":
         from .analyze import aggregate
         from .pricing import fmt_dollars, session_cost, total_cost
-        res = do_scan(agents, getattr(args, "limit", 0))
+        res = do_scan(agents, getattr(args, "limit", 0), ov)
         res.sessions = apply_filters(res.sessions, args.since, args.project, args.model)
         if not res.sessions:
             print("No sessions found.")
@@ -215,7 +232,7 @@ def main(argv=None) -> int:
         return 0
 
     # scan | top | session
-    res = do_scan(agents, getattr(args, "limit", 0))
+    res = do_scan(agents, getattr(args, "limit", 0), ov)
     res.sessions = apply_filters(res.sessions, getattr(args, "since", ""),
                                  getattr(args, "project", ""), getattr(args, "model", ""))
     if not res.sessions:

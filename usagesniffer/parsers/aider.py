@@ -88,8 +88,15 @@ def scan(roots: list[Path] | None = None) -> list[SessionRecord]:
         env = os.environ.get("AIDER_CHAT_HISTORY_FILE")
         roots = [Path(env)] if env else []
         # search common code dirs one level deep for transcripts
-        for base in (Path.home() / "Documents" / "Github", Path.home() / "Projects",
-                     Path.home() / "apps", Path.home() / "Work"):
+        import sys
+        bases = [Path.home() / "Documents" / "Github", Path.home() / "Projects",
+                 Path.home() / "apps", Path.home() / "Work"]
+        if sys.platform == "win32":
+            bases += [Path.home() / "Documents", Path.home() / "source",
+                      Path.home() / "source" / "repos"]
+        elif sys.platform == "darwin":
+            bases += [Path.home() / "Developer", Path.home() / "Documents"]
+        for base in bases:
             if not base.exists():
                 continue
             try:

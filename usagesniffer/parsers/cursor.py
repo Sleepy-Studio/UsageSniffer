@@ -22,6 +22,19 @@ from pathlib import Path
 from ..models import SessionRecord
 
 
+def default_root() -> Path:
+    """Per-OS Cursor user-data dir (verified: %APPDATA% on Windows)."""
+    import os
+    import sys
+    if sys.platform == "win32":
+        base = os.environ.get("APPDATA")
+        if base:
+            return Path(base) / "Cursor" / "User"
+    elif sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / "Cursor" / "User"
+    return Path.home() / ".config" / "Cursor" / "User"
+
+
 def _copy_db(src: Path) -> Path | None:
     try:
         tmp = Path(tempfile.mkdtemp(prefix="usagesniffer-cursor-"))
@@ -97,7 +110,7 @@ def _parse_composer(cid: str, kv: dict) -> SessionRecord:
 
 
 def scan(root: Path | None = None) -> list[SessionRecord]:
-    root = root or (Path.home() / ".config" / "Cursor" / "User")
+    root = root or default_root()
     out: list[SessionRecord] = []
     if not root.exists():
         # legacy fallback
