@@ -1,5 +1,9 @@
 # UsageSniffer
 
+[![PyPI](https://img.shields.io/pypi/v/usagesniffer)](https://pypi.org/project/usagesniffer/)
+[![CI](https://github.com/Sleepy-Studio/UsageSniffer/actions/workflows/ci.yml/badge.svg)](https://github.com/Sleepy-Studio/UsageSniffer/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 Scan your local **Claude Code**, **Codex**, **Opencode**, **Gemini CLI**,
 **Copilot CLI**, **Cursor**, **Aider**, and **Continue** sessions and see
 visually what eats your tokens — skills, thinking, tools, context cache, plus
@@ -12,31 +16,29 @@ Zero-dependency Python. Your session logs never leave the machine.
 Requires Python 3.10+.
 
 ```bash
-# run straight from the repo (no install needed)
-python3 -m usagesniffer scan --top 10
-
-# or install it so the `usagesniffer` command is on your PATH
-pip install git+https://github.com/Sleepy-Studio/UsageSniffer.git
-# or: pipx install git+https://github.com/Sleepy-Studio/UsageSniffer.git
+# install from PyPI (recommended)
+pipx install usagesniffer
 usagesniffer scan --top 10
+
+# or run straight from a repo checkout (no install needed)
+python3 -m usagesniffer scan --top 10
 ```
 
 ## Quick start
 
 ```bash
-cd UsageSniffer
-python3 -m usagesniffer scan --top 10        # everything
-python3 -m usagesniffer scan --agents claude --top 5
-python3 -m usagesniffer session 05062c81     # drill into one session (prefix match)
-python3 -m usagesniffer cost --top 10        # dollar rollup + cache savings
-python3 -m usagesniffer cost --budget 50     # exit 2 + alert when over $50
-python3 -m usagesniffer report -o report.html
-python3 -m usagesniffer watch --interval 30  # live burn (Ctrl-C to stop)
-python3 -m usagesniffer anomalies            # outlier sessions vs agent baseline
-python3 -m usagesniffer skills-roi           # per-skill cost table
-python3 -m usagesniffer compare              # cross-agent efficiency
+usagesniffer scan --top 10                     # everything
+usagesniffer scan --agents claude --top 5
+usagesniffer session 05062c81                  # drill into one session (prefix match)
+usagesniffer cost --top 10                     # dollar rollup + cache savings
+usagesniffer cost --budget 50                  # exit 2 + alert when over $50
+usagesniffer report -o report.html
+usagesniffer watch --interval 30               # live burn (Ctrl-C to stop)
+usagesniffer anomalies                         # outlier sessions vs agent baseline
+usagesniffer skills-roi                        # per-skill cost table
+usagesniffer compare                           # cross-agent efficiency
 # filters work on most commands:
-python3 -m usagesniffer scan --since 2026-09-01 --project Sunrise --model sonnet
+usagesniffer scan --since 2026-09-01 --project Sunrise --model sonnet
 ```
 
 ## What it reads
@@ -73,12 +75,17 @@ your real budget goes.
 usagesniffer/
   models.py            # SessionRecord / ScanResult
   analyze.py           # aggregation
+  pricing.py           # per-model $/Mtok rates + cost rollups
+  insights.py          # anomalies, skill ROI, cross-agent compare
   render.py            # terminal ASCII charts (stdlib only)
-  cli.py               # scan | top | session
+  report.py            # self-contained HTML report
+  cli.py               # scan | top | session | cost | report | watch |
+                       #   anomalies | skills-roi | compare
   parsers/
-    claude.py          # ~/.claude/projects JSONL
-    codex.py           # ~/.codex/sessions rollout JSONL
-    opencode.py        # opencode.db SQLite
+    claude.py codex.py opencode.py gemini.py
+    copilot.py cursor.py aider.py continue_.py
+tests/
+  smoke_fixtures.py    # synthetic sessions through the real pipeline
 ```
 
 ## Roadmap
@@ -89,5 +96,5 @@ usagesniffer/
 - [x] prompt-caching savings estimate (cache_read vs full-price replay)
 - [x] 8-agent coverage (Claude, Codex, Opencode, Gemini, Copilot, Cursor, Aider, Continue)
 - [x] anomalies, skill ROI, cross-agent compare
-- [ ] PyPI publish (`pipx install usagesniffer`) — see `packaging.md`
+- [x] PyPI publish (`pipx install usagesniffer`)
 - [ ] Homebrew / AUR packages — templates in `packaging.md`
