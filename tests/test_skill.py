@@ -28,7 +28,8 @@ CASES = {
 }
 
 FLAGS = ["--agents", "--since", "--project", "--model",
-         "--opencode-db", "--cursor-dir", "--aider-path"]
+         "--opencode-db", "--cursor-dir", "--aider-path", "--hermes-db",
+         "--grok-home"]
 
 
 def main() -> None:

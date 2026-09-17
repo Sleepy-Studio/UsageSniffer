@@ -1,12 +1,12 @@
 ---
 name: usagesniffer
 description: >
-  Audit AI-agent token usage and cost with UsageSniffer. Use when the user
-  asks what burned tokens or money, which skill/tool/context ate the budget,
-  whether spend is over budget, or wants a waste audit with fixes. Covers
-  Claude Code, Codex, Opencode, Gemini CLI, Copilot CLI, Cursor, Aider, and
-  Continue sessions. Triggers: token usage, cost check, over budget, usage
-  report, what ate my tokens, doctor, efficiency audit, spending.
+   Audit AI-agent token usage and cost with UsageSniffer. Use when the user
+    asks what burned tokens or money, which skill/tool/context ate the budget,
+    whether spend is over budget, or wants a waste audit with fixes. Covers
+    Claude Code, Codex, Opencode, Gemini CLI, Grok Build, Copilot CLI, Cursor, Aider,
+    Continue, and Hermes sessions. Triggers: token usage, cost check, over budget, usage
+   report, what ate my tokens, doctor, efficiency audit, spending.
 ---
 
 # UsageSniffer Skill
@@ -40,7 +40,7 @@ usagesniffer prices                     # price-table source/age + overrides
 usagesniffer mcp                        # MCP stdio server (see below)
 # filters (most commands): --agents claude,codex --since YYYY-MM-DD
 #   --project SUBSTR --model SUBSTR
-# overrides: --opencode-db PATH --cursor-dir DIR --aider-path FILE
+# overrides: --opencode-db PATH --cursor-dir DIR --aider-path FILE --hermes-db PATH --grok-home DIR
 ```
 
 ## Reading the output

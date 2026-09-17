@@ -26,8 +26,13 @@ PRICES: dict[str, tuple[float, float]] = {
     # Google Gemini
     "gemini-2.5-pro": (1.25, 10.0),
     "gemini-2.5-flash": (0.3, 2.5),
+    "gemini-2.5-flash-lite": (0.1, 0.4),
     "gemini-3-pro": (2.0, 12.0),
-    # xAI / others via opencode
+    "gemini-3-flash": (0.5, 3.0),
+    # xAI Grok
+    "grok-code": (0.2, 1.5),
+    "grok-4": (3.0, 15.0),
+    "grok-3": (3.0, 15.0),
     "grok": (2.0, 10.0),
     "mimo": (0.0, 0.0),  # free tier
     "deepseek": (0.55, 2.19),
@@ -41,10 +46,12 @@ AGENT_DEFAULTS: dict[str, tuple[float, float]] = {
     "codex": (2.5, 10.0),
     "opencode": (1.5, 6.0),
     "gemini": (1.25, 10.0),
+    "grok": (3.0, 15.0),
     "copilot": (0.0, 0.0),   # subscription billing — tokens tracked, $ unknown
     "cursor": (3.0, 15.0),
     "aider": (2.0, 8.0),
     "continue": (2.0, 8.0),
+    "hermes": (2.0, 8.0),
 }
 
 CACHE_READ_MULT = 0.10   # cache reads ~10% of input price

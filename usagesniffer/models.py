@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 # Canonical attribution buckets (token-weighted where the source
 # format gives real usage numbers, char-estimated otherwise).
 BUCKETS = (
-    "thinking",        # Claude thinking blocks / reasoning_output_tokens / opencode reasoning parts
+    "thinking",        # Claude thinking blocks / reasoning_output_tokens / opencode reasoning parts / Hermes reasoning_tokens
     "skills",          # SKILL.md loads, skill instructions, skill-named tool calls
     "tools",           # tool_use + tool_result payloads, exec calls
     "context_cache",   # cache_read_input_tokens / cached_input_tokens / cache.read
@@ -23,7 +23,7 @@ BUCKETS = (
 @dataclass
 class SessionRecord:
     session_id: str
-    agent: str  # "claude" | "codex" | "opencode"
+    agent: str  # "claude" | "codex" | "opencode" | "gemini" | "grok" | "copilot" | "cursor" | "aider" | "continue" | "hermes"
     project: str = ""
     cwd: str = ""
     model: str = ""

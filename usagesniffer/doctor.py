@@ -196,6 +196,7 @@ def audit_disk() -> list[dict]:
         "codex sessions": Path.home() / ".codex" / "sessions",
         "opencode.db": Path.home() / ".local" / "share" / "opencode" / "opencode.db",
         "gemini tmp": Path.home() / ".gemini" / "tmp",
+        "grok sessions": Path.home() / ".grok" / "sessions",
         "copilot store": Path.home() / ".copilot" / "session-store.db",
     }
     findings = []

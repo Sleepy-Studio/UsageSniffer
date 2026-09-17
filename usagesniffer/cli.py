@@ -15,15 +15,18 @@ from .parsers import continue_ as p_continue
 from .parsers import copilot as p_copilot
 from .parsers import cursor as p_cursor
 from .parsers import gemini as p_gemini
+from .parsers import grok as p_grok
+from .parsers import hermes as p_hermes
 from .parsers import opencode as p_opencode
 from .render import render_overview, render_session
 
-ALL_AGENTS = ("claude", "codex", "opencode", "gemini", "copilot", "cursor", "aider", "continue")
+ALL_AGENTS = ("claude", "codex", "opencode", "gemini", "grok", "copilot", "cursor", "aider", "continue", "hermes")
 
 _PARSERS = {
     "claude": p_claude.scan, "codex": p_codex.scan, "opencode": p_opencode.scan,
-    "gemini": p_gemini.scan, "copilot": p_copilot.scan, "cursor": p_cursor.scan,
-    "aider": p_aider.scan, "continue": p_continue.scan,
+    "gemini": p_gemini.scan, "grok": p_grok.scan,
+    "copilot": p_copilot.scan, "cursor": p_cursor.scan,
+    "aider": p_aider.scan, "continue": p_continue.scan, "hermes": p_hermes.scan,
 }
 
 
@@ -67,6 +70,8 @@ def add_common(p):
     p.add_argument("--opencode-db", default="", help="explicit opencode.db path (else OPENCODE_DB / defaults)")
     p.add_argument("--cursor-dir", default="", help="explicit Cursor User dir (else per-OS default)")
     p.add_argument("--aider-path", default="", help="explicit .aider.chat.history.md / analytics log")
+    p.add_argument("--hermes-db", default="", help="explicit Hermes state.db path (else HERMES_DB / ~/.hermes/state.db)")
+    p.add_argument("--grok-home", default="", help="explicit Grok home dir (else GROK_HOME / ~/.grok)")
 
 
 def collect_overrides(args) -> dict:
@@ -77,6 +82,10 @@ def collect_overrides(args) -> dict:
         ov["cursor"] = Path(args.cursor_dir)
     if getattr(args, "aider_path", ""):
         ov["aider"] = [Path(args.aider_path)]
+    if getattr(args, "hermes_db", ""):
+        ov["hermes"] = Path(args.hermes_db)
+    if getattr(args, "grok_home", ""):
+        ov["grok"] = Path(args.grok_home)
     return ov
 
 

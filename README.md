@@ -5,7 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Scan your local **Claude Code**, **Codex**, **Opencode**, **Gemini CLI**,
-**Copilot CLI**, **Cursor**, **Aider**, and **Continue** sessions and see
+**Grok Build**, **Copilot CLI**, **Cursor**, **Aider**, **Continue**, and **Hermes**
+sessions and see
 visually what eats your tokens — skills, thinking, tools, context cache, plus
 dollar costs, anomalies, and cross-agent comparisons.
 
@@ -45,9 +46,9 @@ Or run from a checkout with no install: `python3 -m usagesniffer scan --top 10`.
 - **Windows:** Claude (`%USERPROFILE%\.claude`), Codex (`%USERPROFILE%\.codex`),
   Opencode (`%USERPROFILE%\.local\share\opencode\opencode.db`), Gemini,
   Copilot, and Continue resolve automatically. Cursor is read from
-  `%APPDATA%\Cursor\User`. If your stores live elsewhere:
-  `usagesniffer scan --opencode-db PATH --cursor-dir DIR --aider-path FILE`
-  (Opencode also honors the `OPENCODE_DB` env var).
+   `%APPDATA%\Cursor\User`. If your stores live elsewhere:
+    `usagesniffer scan --opencode-db PATH --cursor-dir DIR --aider-path FILE --hermes-db PATH --grok-home DIR`
+    (Opencode also honors the `OPENCODE_DB` env var; Hermes honors `HERMES_DB`; Grok honors `GROK_HOME`).
 - **macOS:** Cursor is read from `~/Library/Application Support/Cursor/User`;
   everything else is home-relative and just works.
 - **Linux:** default paths as listed in "What it reads" below.
@@ -81,11 +82,13 @@ usagesniffer scan --since 2026-09-01 --project Sunrise --model sonnet
 | Claude  | `~/.claude/projects/*/*.jsonl` | `message.usage`: input / output / cache_creation / cache_read per assistant message |
 | Codex   | `~/.codex/sessions/**/*.jsonl` | `event_msg` → `token_count`: `last_token_usage` per step (input / cached / output / reasoning) |
 | Opencode| `~/.local/share/opencode/opencode.db` | `message.data.tokens` + `part` rows (text / reasoning / tool) |
-| Gemini  | `~/.gemini/tmp/*/chats/*.json` | per-message `tokens` {input, output, cached, thoughts, tool} |
+| Gemini  | `~/.gemini/tmp/*/chats/*.jsonl` (+ legacy `*.json`) | per-message `tokens` {input, output, cached, thoughts, tool}; subagent chats nested |
+| Grok    | `~/.grok/sessions/*/*/ ` (`$GROK_HOME`) | per-turn `turn_completed` usage {inputTokens, outputTokens, cachedReadTokens, reasoningTokens} summed; `chat_history.jsonl` fallback when absent |
 | Copilot | `~/.copilot/session-store.db` | `assistant_usage_events` per turn (input / output / cache / reasoning). Subscription billing → $ unknown |
 | Cursor  | `~/.config/Cursor/User/**/state.vscdb` | ⚠️ per-bubble tokens read as zero on current builds; char-estimated, cost from `usageData.costInCents` when present |
 | Aider   | `.aider.chat.history.md` / `--analytics-log` JSONL | real tokens only via analytics log (`prompt_tokens`, `completion_tokens`, `cost`); transcripts are char-estimated |
 | Continue| `~/.continue/sessions/*.json` | session `usage` {promptTokens, completionTokens, cachedTokens} when the model reports it |
+| Hermes  | `~/.hermes/state.db` (SQLite) | `sessions` input / output / cache_read / cache_write / reasoning per session; tool counts from `messages` |
 
 ## Attribution buckets
 
@@ -125,8 +128,8 @@ usagesniffer/
   cli.py               # scan | top | session | cost | report | watch |
                        #   anomalies | skills-roi | compare
   parsers/
-    claude.py codex.py opencode.py gemini.py
-    copilot.py cursor.py aider.py continue_.py
+    claude.py codex.py opencode.py gemini.py grok.py
+    copilot.py cursor.py aider.py continue_.py hermes.py
 tests/
   smoke_fixtures.py    # synthetic sessions through the real pipeline
 ```
@@ -137,7 +140,7 @@ tests/
 - [x] `--watch` live mode
 - [x] static HTML report export (`report`)
 - [x] prompt-caching savings estimate (cache_read vs full-price replay)
-- [x] 8-agent coverage (Claude, Codex, Opencode, Gemini, Copilot, Cursor, Aider, Continue)
+- [x] 10-agent coverage (Claude, Codex, Opencode, Gemini, Grok, Copilot, Cursor, Aider, Continue, Hermes)
 - [x] anomalies, skill ROI, cross-agent compare
 - [x] proactive `doctor` audit (skill weight, output hogs, model fit, cache reuse, disk)
 - [x] `export --json`, `burn` trends, zero-dep MCP server, doctor in HTML reports

@@ -1,11 +1,11 @@
 [project]
 name = "usagesniffer"
-version = "1.3.0"
-description = "Scan Claude Code, Codex, Opencode, Gemini, Copilot, Cursor, Aider, and Continue sessions and visualize what eats your tokens"
+version = "1.4.0"
+description = "Scan Claude Code, Codex, Opencode, Gemini, Grok, Copilot, Cursor, Aider, Continue, and Hermes sessions and visualize what eats your tokens"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-keywords = ["ai", "agents", "tokens", "usage", "claude", "codex", "opencode"]
+keywords = ["ai", "agents", "tokens", "usage", "claude", "codex", "opencode", "hermes"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",

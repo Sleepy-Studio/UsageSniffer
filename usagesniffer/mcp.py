@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import sys
 
-SERVER_INFO = {"name": "usagesniffer", "version": "1.3.0"}
+SERVER_INFO = {"name": "usagesniffer", "version": "1.4.0"}
 
 
 def _scan(agents=None):
