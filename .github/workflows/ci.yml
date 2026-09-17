@@ -12,3 +12,5 @@ jobs:
         run: python -m usagesniffer scan --top 3 || true
       - name: fixture tests
         run: python tests/smoke_fixtures.py
+      - name: skill conformance tests
+        run: python tests/test_skill.py
