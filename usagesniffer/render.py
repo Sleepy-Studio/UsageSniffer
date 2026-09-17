@@ -32,6 +32,8 @@ def fmt(n: int) -> str:
 
 def render_overview(result, show=10) -> str:
     t: Totals = aggregate(result.sessions)
+    from .pricing import fmt_dollars, total_cost
+    tc = total_cost(result.sessions)
     w = _width()
     L: list[str] = []
     L.append("=" * w)
@@ -41,6 +43,8 @@ def render_overview(result, show=10) -> str:
     for s in result.sessions:
         by_agent.setdefault(s.agent, []).append(s)
     L.append(f"sessions: {t.sessions}   messages/steps: {t.messages}   total tokens: {fmt(t.grand)}")
+    L.append(f"est. cost: {fmt_dollars(tc['total'])}   cache saved you ~{fmt_dollars(tc['saved_by_cache'])}"
+             "   (see `cost` for detail)")
     L.append("")
     L.append("--- by agent (real token totals from logs) ---")
     for agent, ss in sorted(by_agent.items()):

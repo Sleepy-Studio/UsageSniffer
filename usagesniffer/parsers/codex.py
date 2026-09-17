@@ -41,6 +41,14 @@ def _payload_text(payload) -> str:
 
 def parse_file(path: Path) -> SessionRecord:
     rec = SessionRecord(session_id=path.stem, agent="codex")
+    import re as _re
+    from datetime import datetime as _dt, timezone as _tz
+    m = _re.search(r"(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})", path.stem)
+    if m:
+        try:
+            rec.started = _dt.strptime(m.group(1), "%Y-%m-%dT%H-%M-%S").replace(tzinfo=_tz.utc).timestamp()
+        except ValueError:
+            pass
     pending_tools: Counter = Counter()
     pending_skill_hits = 0
     pending_text_chars = 0

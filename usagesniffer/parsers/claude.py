@@ -141,7 +141,10 @@ def scan(root: Path | None = None) -> list[SessionRecord]:
             continue
         for f in sorted(slug_dir.glob("*.jsonl")):
             try:
-                out.append(parse_file(f, slug_dir.name))
+                rec = parse_file(f, slug_dir.name)
+                if not rec.started:
+                    rec.started = f.stat().st_mtime
+                out.append(rec)
             except Exception:
                 continue
     return out

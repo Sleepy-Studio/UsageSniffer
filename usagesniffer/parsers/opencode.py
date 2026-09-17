@@ -50,8 +50,8 @@ def scan(db: Path | None = None) -> list[SessionRecord]:
     try:
         sessions = cur.execute(
             "SELECT id, title, directory, model, tokens_input, tokens_output,"
-            " tokens_reasoning, tokens_cache_read, tokens_cache_write"
-            " FROM session"
+            " tokens_reasoning, tokens_cache_read, tokens_cache_write,"
+            " time_created FROM session"
         ).fetchall()
     except sqlite3.Error:
         return []
@@ -65,6 +65,10 @@ def scan(db: Path | None = None) -> list[SessionRecord]:
             cwd=str(s["directory"] or ""),
             model=str(s["model"] or ""),
         )
+        try:
+            rec.started = float(s["time_created"] or 0) / 1000
+        except (TypeError, ValueError):
+            pass
         try:
             msgs = cur.execute("SELECT id, data FROM message WHERE session_id=?", (sid,)).fetchall()
         except sqlite3.Error:

@@ -28,6 +28,7 @@ class SessionRecord:
     cwd: str = ""
     model: str = ""
     n_messages: int = 0
+    started: float = 0.0  # epoch seconds; 0 = unknown
     # Real token totals straight from the log format.
     input_tokens: int = 0
     output_tokens: int = 0
